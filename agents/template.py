@@ -3,19 +3,25 @@ import random
 
 class Agent:
 
-    def __init__(self,playerId,gameState):
+    def __init__(self,playerId):
         self.playerId = playerId
-        self.gameState = gameState
+        self.gameState = None
     
     def nextMove(self):
         return
+
+    def setGameState(self,gameState):
+        self.gameState = gameState
     
 
 class RandomAgent(Agent):
 
 
-    def __init__(self,playerId,gameState):
-        super().__init__(playerId,gameState)
+    def __init__(self,playerId):
+        super().__init__(playerId)
+    
+    def setGameState(self, gameState):
+        super().setGameState(gameState)
     
     def play(self):
         move = self.nextMove()

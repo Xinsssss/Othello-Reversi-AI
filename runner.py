@@ -7,6 +7,8 @@ from agents.minimax_agent import MinimaxAgent
 from agents.rl_agent import ReinforceAgent
 import sys
 from datetime import datetime
+import copy
+
 
 def main():
 
@@ -16,8 +18,14 @@ def main():
     parser.add_argument('--agent2',default="random",type=str,help="Second agent playing this game")
     parser.add_argument('--testLayout',default=None,type=str,help="If you need pre-config gameBoard input")
     parser.add_argument('--output',default=False,type=bool,help="Print to txt or not")
+    parser.add_argument('--turns',default=1,type=int,help="Number of turns you want to run")
 
     args = parser.parse_args()
+
+        
+    if args.output:
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+        sys.stdout = open(f'output/{timestamp}.txt','w',encoding="utf-8")
 
     if args.testLayout:
         gameState = GameState(args.testLayout)
@@ -25,39 +33,61 @@ def main():
         gameState = GameState(None)
 
     if args.agent1 == "random":
-        agent1 = RandomAgent(BLACK_PLAYER,gameState)
+        agent1 = RandomAgent(BLACK_PLAYER)
     elif args.agent1 == "minimax":
-        agent1 = MinimaxAgent(BLACK_PLAYER,gameState)
+        agent1 = MinimaxAgent(BLACK_PLAYER)
     elif args.agent1 == "mcts":
-        agent1 = MCTSAgent(BLACK_PLAYER,gameState)
+        agent1 = MCTSAgent(BLACK_PLAYER)
     elif args.agent1 == "rl":
-        agent1 = ReinforceAgent(BLACK_PLAYER,gameState)
+        agent1 = ReinforceAgent(BLACK_PLAYER)
     
     if args.agent2 == "random":
-        agent2 = RandomAgent(WHITE_PLAYER,gameState)
+        agent2 = RandomAgent(WHITE_PLAYER)
     elif args.agent2 == "minimax":
-        agent2 = MinimaxAgent(WHITE_PLAYER,gameState)
+        agent2 = MinimaxAgent(WHITE_PLAYER)
     elif args.agent2 == "mcts":
-        agent2 = MCTSAgent(WHITE_PLAYER,gameState)
+        agent2 = MCTSAgent(WHITE_PLAYER)
     elif args.agent2 == "rl":
-        agent2 = ReinforceAgent(WHITE_PLAYER,gameState)
-    
-    if args.output:
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        sys.stdout = open(f'output/{timestamp}.txt','w',encoding="utf-8")
-    
-    players = [agent1,agent2]
-    currPlayer = 0
-    while not gameState.gameEnd():
-        players[currPlayer].play()
-        gameState.printGameBoard()
-        currPlayer = 1 - currPlayer
-    if gameState.score[0] > gameState.score[1]:
-        print("Black Win!")
-    elif gameState.score[0] < gameState.score[1]:
-        print("White Win!")
-    elif gameState.score[0] == gameState.score[1]:
-        print("Draw!")
+        agent2 = ReinforceAgent(WHITE_PLAYER)
+
+    agent1Win = 0
+    agent2Win = 0
+    draw = 0
+    agent1Score = 0
+    agent2Score = 0
+
+    for i in range(args.turns):
+        currGameState = copy.deepcopy(gameState)
+        agent1.setGameState(currGameState)
+        agent2.setGameState(currGameState)
+        players = [agent1,agent2]
+        currPlayer = 0
+        while not currGameState.gameEnd():
+            players[currPlayer].play()
+            currPlayer = 1 - currPlayer
+            if args.output:
+                currGameState.printGameBoard()
+        if currGameState.score[0] > currGameState.score[1]:
+            if args.output:
+                print("Black Wins!")
+            agent1Win += 1
+        elif currGameState.score[0] < currGameState.score[1]:
+            if args.output:
+                print("White Wins!")
+            agent2Win += 1
+        else:
+            if args.output:
+                print("Draw!")
+            draw += 1
+        agent1Score += currGameState.score[0]
+        agent2Score += currGameState.score[1]
+    agent1AvgScore = agent1Score/args.turns
+    agent2AvgScore = agent2Score/args.turns
+
+    print(f"Black won {agent1Win} out of {args.turns} with an average score of {agent1AvgScore}")
+    print(f"White won {agent2Win} out of {args.turns} with an average score of {agent2AvgScore}")
+    print(f"Total of {draw} draws out of {args.turns}")
+
 
 
 if __name__ == "__main__":
