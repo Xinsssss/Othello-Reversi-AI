@@ -55,7 +55,7 @@ def main():
     draw = 0
     agent1Score = 0
     agent2Score = 0
-
+    num = 0
     for i in range(args.turns):
         currGameState = copy.deepcopy(gameState)
         agent1.setGameState(currGameState)
@@ -64,8 +64,8 @@ def main():
         currPlayer = 0
         while not currGameState.gameEnd():
             players[currPlayer].play()
-            if not args.output:
-                print(f"One move from agent {currPlayer}, {sum(currGameState.score)} filled")
+            #if not args.output:
+                #print(f"One move from agent {currPlayer}, {sum(currGameState.score)}")
             currPlayer = 1 - currPlayer
             if args.output:
                 currGameState.printGameBoard()
@@ -83,11 +83,14 @@ def main():
             draw += 1
         agent1Score += currGameState.score[0]
         agent2Score += currGameState.score[1]
+        if not args.output:
+            num += 1
+            print(f"{num} out of {args.turns} games end")
     agent1AvgScore = agent1Score/args.turns
     agent2AvgScore = agent2Score/args.turns
 
-    print(f"Black won {agent1Win} out of {args.turns} with an average score of {agent1AvgScore}")
-    print(f"White won {agent2Win} out of {args.turns} with an average score of {agent2AvgScore}")
+    print(f"Black ({args.agent1}) won {agent1Win} out of {args.turns} with an average score of {agent1AvgScore}")
+    print(f"White ({args.agent2}) won {agent2Win} out of {args.turns} with an average score of {agent2AvgScore}")
     print(f"Total of {draw} draws out of {args.turns}")
 
 

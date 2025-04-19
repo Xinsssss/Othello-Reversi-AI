@@ -17,9 +17,16 @@ class MinimaxAgent(Agent):
         
         validMoves = self.gameState.getValidMoves(self.playerId)
         scores = {}
+        nextStates = {}
         for move in validMoves:
             nextState = deepcopy(self.gameState)
             nextState.updateMove(move,self.playerId)
+            nextStates[nextState] = nextState.score[self.playerId]
+        nextStates = sorted(nextStates, key=nextStates.get, reverse=True)
+        if len(nextStates) > REDUCED_MOVE_LENGTH:
+            nextStates = nextStates[:REDUCED_MOVE_LENGTH]
+
+        for nextState in nextStates:
             bestScore = self.miniMax(self.playerId,MAX_SCORE,MIN_SCORE,nextState,MINIMAX_DEPTH)
             scores[move] = bestScore
 
@@ -33,7 +40,7 @@ class MinimaxAgent(Agent):
     def miniMax(self, Id, alpha, beta, gameState, depth):
 
         if gameState.gameEnd() or depth == 0:
-            return gameState.score[Id]
+            return gameState.score[self.playerId] - gameState.score[1-self.playerId]
         
         if Id == self.playerId: # Maximising player
             bestScore = MAX_SCORE
