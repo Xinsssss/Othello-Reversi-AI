@@ -64,6 +64,8 @@ def main():
         currPlayer = 0
         while not currGameState.gameEnd():
             players[currPlayer].play()
+            if not args.output:
+                print(f"One move from agent {currPlayer}, {sum(currGameState.score)} filled")
             currPlayer = 1 - currPlayer
             if args.output:
                 currGameState.printGameBoard()
